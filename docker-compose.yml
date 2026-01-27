@@ -1,0 +1,31 @@
+services:
+    sql:
+        image: mysql
+        restart: always
+        environment:
+            MYSQL_DATABASE: leaptest
+            MYSQL_PASSWORD: p@ssword
+            MYSQL_ROOT_PASSWORD: p@ssword
+            MYSQL_USER: user
+        ports:
+            -   "3306:3306"
+        volumes:
+            - ./data:/var/lib/mysql
+        networks:
+            - main
+
+    web:
+        image: shinsenter/laravel:latest
+        ports:
+            - "8000:80"
+        volumes:
+            - ./:/var/www/html
+        environment:
+            APP_USER: "mike"
+            APP_GROUP: "mike"
+        networks:
+            - main
+
+networks:
+    main:
+        driver: bridge
