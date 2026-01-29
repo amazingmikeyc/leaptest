@@ -1,16 +1,28 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { notes } from '@/routes';
+import { notecreate, noteedit, notes } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
-import PlaceholderPattern from '../components/PlaceholderPattern.vue';
-
+import NotesList from '@/components/NotesList.vue';
+import { ref, watchEffect } from 'vue';
+import { Button } from '@/components/ui/button';
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Notes',
         href: notes().url,
     },
 ];
+
+const notesData = ref([]);
+
+watchEffect(refreshData);
+
+async function refreshData() {
+    const url = '/api/notes';
+    const response = await ((await fetch(url)).json());
+    notesData.value = response.data;
+}
+
 </script>
 
 <template>
@@ -20,27 +32,11 @@ const breadcrumbs: BreadcrumbItem[] = [
         <div
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
-            <div class="grid auto-rows-min gap-4 md:grid-cols-3">
-                <div
-                    class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
-                >
-                    <PlaceholderPattern />
-                </div>
-                <div
-                    class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
-                >
-                    <PlaceholderPattern />
-                </div>
-                <div
-                    class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
-                >
-                    <PlaceholderPattern />
-                </div>
-            </div>
             <div
                 class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border"
             >
-                <PlaceholderPattern />
+                <Button><Link :href="notecreate()">New Note</Link></Button>
+                <NotesList :notesData="notesData" @refresh="refreshData" />
             </div>
         </div>
     </AppLayout>

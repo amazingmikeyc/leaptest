@@ -24,6 +24,7 @@ Route::get('/notes/{id}', function ($id) {
 //create a note
 Route::post('/notes', function (Request $request) {
 
+
     $request->validate(['name' => 'required|max:255', 'content' => 'required']);
 
     $note = new NoteModel();
@@ -31,10 +32,13 @@ Route::post('/notes', function (Request $request) {
     $note->content = $request->post('content');
     $note->save();
 
+    return new NoteResource($note);
 });
 
 //update a note
 Route::put('/notes/{id}', function ($id, Request $request) {
+
+   // die('here we go');
 
     $request->validate(['name' => 'required|max:255', 'content' => 'required']);
     $note = NoteModel::findOrFail($id);
@@ -43,6 +47,8 @@ Route::put('/notes/{id}', function ($id, Request $request) {
     $note->content = $request->post('content');
 
     $note->save();
+
+    return new NoteResource($note);
 });
 
 //delete a note
