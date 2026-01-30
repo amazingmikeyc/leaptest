@@ -10,7 +10,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea';
 import { router} from '@inertiajs/vue3';
-import { Save, Undo2 } from 'lucide-vue-next'
+import { Frown, Save, Undo2 } from 'lucide-vue-next';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -33,27 +34,36 @@ const noteData = ref(
     }
 );
 
-const errors = ref(
+const validationErrors = ref(
     {}
 )
+
+const loadingErrorCode = ref('');
+const savingErrorCode = ref('');
 
 const headers = {
     'Content-Type': 'application/json',
     'X-Requested-With': 'XMLHttpRequest'
 };
 
-let disableForm = true;
-let disableSave = false;
+let disableForm = ref(true);
+let disableSave = ref(false);
 
 if (props.id !== undefined) {
     watchEffect(async () => {
         const url = '/api/notes/' + props.id;
-        const response = await ((await fetch(url)).json());
-        noteData.value = response.data;
-        disableForm = false;
+        const response = (await fetch(url));
+        loadingErrorCode.value = '';
+        if (response.status === 200) {
+            const json = await (response.json());
+            noteData.value = json.data;
+        } else {
+            loadingErrorCode.value = response.status;
+        }
+        disableForm.value = false;
     });
 } else {
-    disableForm = false;
+    disableForm.value = false;
 }
 
 async function  save() {
@@ -74,13 +84,14 @@ async function  save() {
         }),
         headers: headers,
     }
+    savingErrorCode.value = '';
+    disableSave.value = true;
 
-    disableSave = true;
     const response = await (fetch(url, options));
     if (response.status === 200 || response.status === 201) {
         noteData.value = (await response.json()).data;
-        errors.value = {};
-        disableSave = false;
+        validationErrors.value = {};
+        disableSave.value = false;
         //forward to correct URL
         router.get(noteedit(noteData.value.id));
         return;
@@ -88,10 +99,16 @@ async function  save() {
     //validation error
     if (response.status === 422) {
         const responseJson = await response.json();
-        errors.value = responseJson.errors;
-        disableSave = false;
+        validationErrors.value = responseJson.errors;
+        disableSave.value = false;
+        return;
     }
 
+    //default.
+    savingErrorCode.value = response.status;
+    const responseJson = await response.json();
+    validationErrors.value = responseJson.errors;
+    disableSave.value = false;
 }
 
 </script>
@@ -103,24 +120,43 @@ async function  save() {
         <div
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
+            <div v-if="loadingErrorCode">
+                <Alert v-if="loadingErrorCode==404">
+                    <Frown />
+                    <AlertTitle> Note not found</AlertTitle>
+                    <AlertDescription>404: There seems to have been an issue loading your note</AlertDescription>
+                </Alert>
+                <Alert v-else>
+                    <Frown />
+                    <AlertTitle> Error loading note</AlertTitle>
+                    <AlertDescription>{{ loadingErrorCode }}: There seems to have been an issue loading your note</AlertDescription>
+                </Alert>
+            </div>
 
-            <div class="grid w-full items-center gap-4">
+            <div v-else class="grid w-full items-center gap-4">
+                <Alert v-if="savingErrorCode">
+                    <Frown />
+                    <AlertTitle> Error saving note</AlertTitle>
+                    <AlertDescription>{{ savingErrorCode }}: There seems to have been an issue saving your note</AlertDescription>
+                </Alert>
+
+
                 <div class="flex flex-col space-y-1.5">
                     <Label for="name">Note Name</Label>
                     <Input id="name" type="text" v-model="noteData.name" :disabled="disableForm"/>
-                    <Label>{{ errors.name }}</Label>
+                    <Label>{{ validationErrors.name }}</Label>
                 </div>
                 <div class="flex flex-col space-y-1.5">
                     <div class="flex items-center">
                         <Label for="content">Note Content</Label>
                     </div>
                     <Textarea  id="content" type="textarea" v-model="noteData.content" :disabled="disableForm"  />
-                    <Label>{{ errors.content }}</Label>
+                    <Label>{{ validationErrors.content }}</Label>
                 </div>
-            </div>
 
-            <Button v-if="noteData.id"  @click="save" :disabled="disableForm|disableSave"><Save />Save</Button>
-            <Button v-else  @click="save" :disabled="disableForm|disableSave"><Save />Create</Button>
+                <Button v-if="noteData.id"  @click="save" :disabled="disableForm|disableSave"><Save />Save</Button>
+                <Button v-else  @click="save" :disabled="disableForm|disableSave"><Save />Create</Button>
+            </div>
 
             <Button variant="outline"><Undo2 /><Link :href="notes.url()">Cancel</Link></Button>
 

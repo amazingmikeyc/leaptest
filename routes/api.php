@@ -5,12 +5,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Resources\Notes as NoteResource;
 use App\Models\Note as NoteModel;
 
-/*
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
-*/
-
 //get all notes
 Route::get('/notes', function () {
     return NoteResource::collection(NoteModel::all());
@@ -23,7 +17,6 @@ Route::get('/notes/{id}', function ($id) {
 
 //create a note
 Route::post('/notes', function (Request $request) {
-
     $request->validate(['name' => 'required|max:255', 'content' => 'required']);
 
     $note = new NoteModel();
@@ -36,9 +29,6 @@ Route::post('/notes', function (Request $request) {
 
 //update a note
 Route::put('/notes/{id}', function ($id, Request $request) {
-
-   // die('here we go');
-
     $request->validate(['name' => 'required|max:255', 'content' => 'required']);
     $note = NoteModel::findOrFail($id);
 

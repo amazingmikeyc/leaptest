@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-vue-next';
+import { BookOpen, Folder, NotebookPen, CirclePlus } from 'lucide-vue-next';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
@@ -13,15 +13,20 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { notes } from '@/routes';
+import { notecreate, notes } from '@/routes';
 import { type NavItem } from '@/types';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Notes',
+        title: 'View Notes',
         href: notes(),
-        icon: LayoutGrid,
+        icon: NotebookPen,
+    },
+    {
+        title: 'Create Notes',
+        href: notecreate(),
+        icon: CirclePlus
     },
 ];
 
