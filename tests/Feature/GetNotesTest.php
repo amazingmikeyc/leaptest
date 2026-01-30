@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class GetNotesTest extends TestCase
@@ -11,15 +10,29 @@ class GetNotesTest extends TestCase
 
     use RefreshDatabase;
     /**
-     * A basic feature test example.
+     * Get some notes from the database
      */
-    public function getNotes(): void
+    public function testGetNotes(): void
     {
-        $url = '/api/notes';
+        $this->seed();
 
-        $response = $this->get($url);
+        $url = '/api/notes';
+        $headers = ['X-Requested-With' => 'XMLHttpRequest'];
+
+        /**
+         * $response TestResponse
+         */
+        $response = $this->getJson($url, $headers);
+
+        $structure = [
+            'data' => [
+                '*' => [
+                    'name', 'content', 'id', 'created_at', 'updated_at'
+                ]
+            ]
+        ];
 
         $response->assertStatus(200)
-            ->assertJsonStructure();
+            ->assertJsonStructure($structure);
     }
 }

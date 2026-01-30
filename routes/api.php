@@ -24,7 +24,6 @@ Route::get('/notes/{id}', function ($id) {
 //create a note
 Route::post('/notes', function (Request $request) {
 
-
     $request->validate(['name' => 'required|max:255', 'content' => 'required']);
 
     $note = new NoteModel();
