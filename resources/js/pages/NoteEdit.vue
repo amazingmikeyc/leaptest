@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem } from '@/types';
 import { notes, noteedit } from '@/routes';
@@ -10,8 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea';
 import { router} from '@inertiajs/vue3';
-import { Alert, AlertTitle } from '@/components/ui/alert';
-import { AlertDialog } from '@/components/ui/alert-dialog';
+import { Save, Undo2 } from 'lucide-vue-next'
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -39,9 +38,9 @@ const errors = ref(
 )
 
 const headers = {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
     'X-Requested-With': 'XMLHttpRequest'
-}
+};
 
 let disableForm = true;
 let disableSave = false;
@@ -120,8 +119,10 @@ async function  save() {
                 </div>
             </div>
 
-            <Button v-if="noteData.id" variant="outline" @click="save" :disabled="disableForm|disableSave">Save</Button>
-            <Button v-else variant="outline" @click="save" :disabled="disableForm|disableSave">Create</Button>
+            <Button v-if="noteData.id"  @click="save" :disabled="disableForm|disableSave"><Save />Save</Button>
+            <Button v-else  @click="save" :disabled="disableForm|disableSave"><Save />Create</Button>
+
+            <Button variant="outline"><Undo2 /><Link :href="notes.url()">Cancel</Link></Button>
 
         </div>
 

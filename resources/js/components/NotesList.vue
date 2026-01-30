@@ -8,7 +8,6 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table'
-import { router} from '@inertiajs/vue3';
 
 /**
  * {
