@@ -1,5 +1,6 @@
 services:
     sql:
+        container_name: leaptest_database
         image: mysql
         restart: always
         environment:
@@ -13,9 +14,17 @@ services:
             - ./data:/var/lib/mysql
         networks:
             - main
+        healthcheck:
+          test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+          interval: 10s
+          timeout: 5s
+          retries: 5
 
     web:
-        image: shinsenter/laravel:latest
+        container_name: leaptest_web
+        build:
+           dockerfile: Dockerfile
+           context: .
         ports:
             - "8000:80"
         volumes:
@@ -25,6 +34,11 @@ services:
             APP_GROUP: "mike"
         networks:
             - main
+        healthcheck:
+          test: [ "CMD", "node", "-v", "-h", "localhost" ]
+          interval: 10s
+          timeout: 5s
+          retries: 5
 
 networks:
     main:
