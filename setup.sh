@@ -18,6 +18,14 @@ docker exec leaptest_web npm install
 echo "Building front end"
 docker exec leaptest_web npm run build
 
+echo "copy .env"
+if [ ! -f ".env" ]; then
+    cp .env.example .env
+else
+    echo "already exists"
+fi
+
+
 until [ "$(docker inspect --format='{{.State.Health.Status}}' "leaptest_database")" == "healthy" ]; do
   echo "Waiting for for database to be ready..."
   sleep 2
