@@ -26,6 +26,8 @@ This should
 4. compile the Vue.js code 
 5. run database migrations
 
+NOTE: I've tested this a few times but once or twice it failed near the beginning; if this happens, type `docker-compose down` to kill the containers, and try running it again. 
+
 ### 2. Go to the URL
 
 Go to the URL: (http://localhost:8000/notes)
